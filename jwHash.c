@@ -40,6 +40,7 @@ int main()
 
     int entry = add_entry(fname, lname, key);
     int entry2 = add_entry(fname, lname, key);
+    int entry3 = add_entry(fname, lname, key);
 
     printf( "First Entry Hash: %i\n", entry );
     printf( "First Entry FName: %s\n", hash_table[entry].key );
@@ -47,6 +48,9 @@ int main()
     printf( "Second Entry Hash: %i\n", entry2 );
     printf( "Second Entry FName: %s\n", hash_table[entry2].key );
     printf( "Second Entry In Use: %i\n", hash_table[entry2].in_use );
+    printf( "Third Entry Hash: %i\n", entry3 );
+    printf( "Third Entry FName: %s\n", hash_table[entry3].key );
+    printf( "Third Entry In Use: %i\n", hash_table[entry3].in_use );
     /*strcpy( hashTable[0].fname, "Jacques" );
     strcpy( hashTable[0].lname, "Woodcock" );
 
@@ -59,10 +63,12 @@ unsigned int add_entry(char const *fname, char const *lname, char const *key)
 {
     unsigned int hash = hash3(key);
 
+    // cut hash down to table size!!!
+ 
     if (hash_table[hash].in_use == 1) {
         unsigned int hash2 = hash3(lname);
         hash = hash + hash2;
-        if (hash > possibles) {
+        if (hash > possibles || hash_table[hash].in_use == 1) {
             return 0;
         }
     }
