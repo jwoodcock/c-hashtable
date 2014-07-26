@@ -22,7 +22,7 @@ struct hash_brown {
 };
 
 struct hash_brown hash_table[91];
-int tableSize = 91;
+const int table_size = 91;
 double possibles;
 
 int main()
@@ -35,7 +35,7 @@ int main()
     printf( "Hash 2: %zu\n", hash2(fname) );
     printf( "Hash 3: %u\n", hash3(fname) );
 
-    possibles = pow(2, tableSize);
+    possibles = pow(2, table_size);
     printf( "Possibilities: %f\n", possibles );
 
     int entry = add_entry(fname, lname, key);
@@ -61,24 +61,26 @@ int main()
 
 unsigned int add_entry(char const *fname, char const *lname, char const *key)
 {
-    unsigned int hash = hash3(key);
+    unsigned int hash_value = hash3(key) & table_size;
+    
+    printf( "add hash: %i\n", hash_value);
 
     // cut hash down to table size!!!
  
-    if (hash_table[hash].in_use == 1) {
-        unsigned int hash2 = hash3(lname);
-        hash = hash + hash2;
-        if (hash > possibles || hash_table[hash].in_use == 1) {
+    if (hash_table[hash_value].in_use == 1) {
+        unsigned int hash_value2 = hash3(lname);
+        hash_value = hash_value2 & table_size;
+        if (hash_value > possibles || hash_table[hash_value].in_use == 1) {
             return 0;
         }
     }
 
-    hash_table[hash].in_use = 1;
-    strcpy(hash_table[hash].fname, fname);
-    strcpy(hash_table[hash].lname, lname);
-    strcpy(hash_table[hash].key, key);
+    hash_table[hash_value].in_use = 1;
+    strcpy(hash_table[hash_value].fname, fname);
+    strcpy(hash_table[hash_value].lname, lname);
+    strcpy(hash_table[hash_value].key, key);
 
-    return hash;
+    return hash_value;
 }
 
 size_t hash(char const *value)
@@ -118,5 +120,5 @@ unsigned int hash3(char const *value)
     //printf( "\n" );
     return h;
 
-//int i = c[0] - '0';
+    //int i = c[0] - '0';
 }
