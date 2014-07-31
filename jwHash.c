@@ -8,18 +8,20 @@
 #include <string.h>
 #include <math.h>
 
-// DEFINITIONS
-size_t hash(char const *value);
-unsigned long hash2(char const *str);
-unsigned int hash3(char const *value);
-unsigned int add_entry(char const *fname, char const *lname, char const *value);
-
+// Structures 
 struct hash_brown {
     char fname[10];
     char lname[10];
     char key[10];
     int in_use;
 };
+
+// DEFINITIONS
+size_t hash(char const *value);
+unsigned long hash2(char const *str);
+unsigned int hash3(char const *value);
+unsigned int add_entry(char const *fname, char const *lname, char const *value);
+struct hash_brown * look_up(char const *key);
 
 struct hash_brown hash_table[91];
 const int table_size = 91;
@@ -39,10 +41,15 @@ int main()
     printf( "Possibilities: %f\n", possibles );
 
     int entry = add_entry(fname, lname, key);
-    int entry2 = add_entry(fname, lname, key);
-    int entry3 = add_entry(fname, lname, key);
+    //int entry2 = add_entry(fname, lname, key);
+    //int entry3 = add_entry(fname, lname, key);
+
+    struct hash_brown * match = look_up(key);
 
     printf( "First Entry Hash: %i\n", entry );
+    printf( "First Entry FName: %s\n", match->fname );
+    printf( "First Entry In Use: %i\n", match->in_use );
+    /*printf( "First Entry Hash: %i\n", entry );
     printf( "First Entry FName: %s\n", hash_table[entry].key );
     printf( "First Entry In Use: %i\n", hash_table[entry].in_use );
     printf( "Second Entry Hash: %i\n", entry2 );
@@ -50,7 +57,7 @@ int main()
     printf( "Second Entry In Use: %i\n", hash_table[entry2].in_use );
     printf( "Third Entry Hash: %i\n", entry3 );
     printf( "Third Entry FName: %s\n", hash_table[entry3].key );
-    printf( "Third Entry In Use: %i\n", hash_table[entry3].in_use );
+    printf( "Third Entry In Use: %i\n", hash_table[entry3].in_use );*/
     /*strcpy( hashTable[0].fname, "Jacques" );
     strcpy( hashTable[0].lname, "Woodcock" );
 
@@ -59,13 +66,34 @@ int main()
     return 0;
 }
 
+struct hash_brown * look_up(char const *key)
+{
+    unsigned int hash_value = hash3(key) % table_size;
+    unsigned int offset = hash_value % table_size;
+    unsigned int step = ((hash_value / table_size) % table_size);
+
+    step |= 1;
+
+    for (int i = 0; i < table_size; i++) {
+        struct hash_brown* entry = &hash_table[offset];
+        if (!entry->in_use) {
+            return entry;
+        }
+        if (strcmp(entry->key, key) == 0) {
+            return entry;
+        }
+
+        offset = (offset + step) % table_size;  // no match found yet. move on.
+    }
+
+    return NULL; // oh no, the hash table is full
+}
+
 unsigned int add_entry(char const *fname, char const *lname, char const *key)
 {
-    unsigned int hash_value = hash3(key) & table_size;
+    unsigned int hash_value = hash3(key) % table_size;
     
     printf( "add hash: %i\n", hash_value);
-
-    // cut hash down to table size!!!
  
     if (hash_table[hash_value].in_use == 1) {
         unsigned int hash_value2 = hash3(lname);
