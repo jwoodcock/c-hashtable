@@ -7,7 +7,7 @@
 #include <ctype.h>
 
 #define main banana
-#include "jwHash.c"
+#include "HashBrowns.c"
 #undef main
 
 int main()
