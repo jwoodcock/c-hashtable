@@ -3,12 +3,14 @@
 // Hash table library and usage for learning c and
 // hash table concepts. 
 //
+// @jwoodcock on github.com/jwoodcock
+//
 
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
 
-// Structures 
+// Structures or just the one struct which will be our hash_table
 struct hash_brown {
     char fname[10];
     char lname[10];
@@ -29,11 +31,13 @@ unsigned long       get_hash(char const *key);
 struct hash_brown * look_up(char const *key);
 
 // Set Globals
-struct hash_brown hash_table[91];
-const int table_size = 91;
-double possibles;
-unsigned int HASH = 0;
+struct hash_brown hash_table[91]; // the hash table we are going to use
+const int table_size = 91; // the max size the table will be
+unsigned int HASH = 0; // which hash to use set at run time
 
+/**
+ * The main method just does some testing on the Hash table and methods.
+ */
 int main()
 {
     char fname[] = "Jacques";
@@ -46,17 +50,8 @@ int main()
     // set Hash
     set_hash(0);
 
-    //printf( "Hash 1: %zu\n", hash(fname) );
-    //printf( "Hash 2: %zu\n", hash2(fname) );
-    //printf( "Hash 3: %u\n", hash3(fname) );
-
-    possibles = pow(2, table_size);
-    //printf( "Possibilities: %f\n", possibles );
-
     int entry = add_entry(fname, lname, key);
     int entry2 = add_entry(fname, lname2, key);
-    //int entry2 = add_entry(fname, lname, key);
-    //int entry3 = add_entry(fname, lname, key);
 
     struct hash_brown * match = look_up(key);
     struct hash_brown * match2 = look_up(key);
@@ -81,6 +76,10 @@ int main()
     return 0;
 }
 
+/**
+ * This method does a hash look up for a povided key and returns
+ * a pointer to a match if one is found or NULL if one is not found.
+ */
 struct hash_brown * look_up(char const *key)
 {
     unsigned int hash_value = get_hash(key);
@@ -104,23 +103,38 @@ struct hash_brown * look_up(char const *key)
     return NULL; // oh no, the hash table is full
 }
 
+/**
+ * This method removes an entry from the hash table based on the
+ * provided key if there is a match.
+ */
 void remove_entry(char const *key)
 {
     struct hash_brown * entry = look_up(key);
-    entry->in_use = 0;
-    strcpy(entry->fname, "");
-    strcpy(entry->lname, "");
-    strcpy(entry->key, "");
+    if (entry->in_use && strcmp(entry->key, key) == 0) {
+        entry->in_use = 0;
+        strcpy(entry->fname, "");
+        strcpy(entry->lname, "");
+        strcpy(entry->key, "");
+    }
 }
 
+/**
+ * This method updates an entry in the hash table with the newly
+ * provided data if at match is found.
+ */
 void update_entry(char const *fname, char const *lname, char const *key)
 {
     struct hash_brown * entry = look_up(key);
-    strcpy(entry->fname, fname);
-    strcpy(entry->lname, lname);
-    strcpy(entry->key, key);
+    if (entry->in_use && strcmp(entry->key, key) == 0) {
+        strcpy(entry->fname, fname);
+        strcpy(entry->lname, lname);
+        strcpy(entry->key, key);
+    }
 }
 
+/**
+ * This method add an entry in the first available empty table slot.
+ */
 unsigned int add_entry(char const *fname, char const *lname, char const *key)
 {
     unsigned int hash_value = get_hash(key);
@@ -146,6 +160,10 @@ unsigned int add_entry(char const *fname, char const *lname, char const *key)
     return NULL; // no room left
 }
 
+/**
+ * This method gets a hash valued based on the provided key using the
+ * configured hashing algorithm.
+ */
 unsigned long get_hash(char const *key)
 {
     if (HASH == 0) {
@@ -163,6 +181,27 @@ unsigned long get_hash(char const *key)
     return 0;
 }
 
+/**
+ * Metho for configuring the table's hash method.
+ */
+unsigned int set_hash(unsigned int hash)
+{
+    if (hash > 3) {
+        return 0;
+    }
+    HASH = hash;
+    return 1;
+}
+
+/**
+ * -------------------------------------------
+ * Hashes - The different hashes you can use
+ * -------------------------------------------
+ */
+
+/**
+ * Hash 1 which uses bitshifting
+ */
 size_t hash(char const *value)
 {
     const int ret_size = 32;
@@ -176,6 +215,9 @@ size_t hash(char const *value)
    return ret;
 }
 
+/**
+ * Hash 2 which uses bitshifting
+ */
 unsigned long hash2(char const *value)
 {
     unsigned long hash = 5381;
@@ -188,6 +230,10 @@ unsigned long hash2(char const *value)
     return hash;
 }
 
+/**
+ * Hash 3 simple hashing based on the length of the provided key
+ * Would not use in production.
+ */
 unsigned int hash3(char const *value)
 {
     unsigned int h = 0;
@@ -197,16 +243,11 @@ unsigned int hash3(char const *value)
     return h;
 }
 
+/**
+ * Hash 4 should never be used unless you are testing the collision handling
+ * of the hash table.
+ */
 unsigned long worst_hash(char const *value)
 { 
     return 4; 
-}
-
-unsigned int set_hash(unsigned int hash)
-{
-    if (hash > 3) {
-        return 0;
-    }
-    HASH = hash;
-    return 1;
 }
