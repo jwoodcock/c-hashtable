@@ -116,33 +116,28 @@ void update_entry(char const *fname, char const *lname, char const *key)
 unsigned int add_entry(char const *fname, char const *lname, char const *key)
 {
     unsigned int hash_value = hash3(key) % table_size;
-    
-    printf( "add hash: %i\n", hash_value);
- 
-    if (hash_table[hash_value].in_use == 1) {
-        // If entry is completely the same, reject
-        if (
-            strcmp(hash_table[hash_value].fname, fname)
-            && strcmp(hash_table[hash_value].lname, lname)
-            && strcmp(hash_table[hash_value].key, key)
-        ) {
-            printf( "Exit Second" );
-            return 0;
+    unsigned int offset = hash_value % table_size;
+    unsigned int step = ((hash_value / table_size) % table_size);
+
+    step |= 1;
+
+    for (int i = 0; i < table_size; i++) {
+        struct hash_brown* entry = &hash_table[offset];
+
+        if ((!entry->in_use && strcmp(entry->key, key)) || !entry->in_use) {
+            entry->in_use = 1;
+            strcpy(entry->fname, fname);
+            strcpy(entry->lname, lname);
+            strcpy(entry->key, key);
+            printf("Added or updated %i\n", offset);
+            return offset;
         }
-        unsigned int hash_value2 = hash2(key);
-        hash_value = hash_value2 % table_size;
-        printf( "Second hash %i\n", hash_value );
-        if (hash_table[hash_value].in_use == 1) {
-            return 0;
-        }
+            printf("No if match %i\n", offset);
+
+        offset = (offset + step) % table_size;  // no match found yet. move on.
     }
 
-    hash_table[hash_value].in_use = 1;
-    strcpy(hash_table[hash_value].fname, fname);
-    strcpy(hash_table[hash_value].lname, lname);
-    strcpy(hash_table[hash_value].key, key);
-
-    return hash_value;
+    return NULL; // no room left
 }
 
 size_t hash(char const *value)
