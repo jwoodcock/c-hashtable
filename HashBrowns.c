@@ -17,17 +17,22 @@ struct hash_brown {
 };
 
 // DEFINITIONS
-size_t hash(char const *value);
-unsigned long hash2(char const *str);
-unsigned int hash3(char const *value);
-unsigned int add_entry(char const *fname, char const *lname, char const *value);
-void remove_entry(char const *key);
-void update_entry(char const *fname, char const *lname, char const *key);
+size_t              hash(char const *value);
+unsigned long       hash2(char const *str);
+unsigned int        hash3(char const *value);
+unsigned long       worst_hash(char const *value);
+unsigned int        add_entry(char const *fname, char const *lname, char const *value);
+void                remove_entry(char const *key);
+void                update_entry(char const *fname, char const *lname, char const *key);
+unsigned int        set_hash(unsigned int hash);
+unsigned long       get_hash(char const *key);
 struct hash_brown * look_up(char const *key);
 
+// Set Globals
 struct hash_brown hash_table[91];
 const int table_size = 91;
 double possibles;
+unsigned int HASH = 0;
 
 int main()
 {
@@ -37,6 +42,9 @@ int main()
     char lname2[] = "zaccaro";
     char update_fname[] = "Angela";
     char update_lname[] = "Bailey";
+
+    // set Hash
+    set_hash(0);
 
     //printf( "Hash 1: %zu\n", hash(fname) );
     //printf( "Hash 2: %zu\n", hash2(fname) );
@@ -75,7 +83,7 @@ int main()
 
 struct hash_brown * look_up(char const *key)
 {
-    unsigned int hash_value = hash3(key) % table_size;
+    unsigned int hash_value = get_hash(key);
     unsigned int offset = hash_value % table_size;
     unsigned int step = ((hash_value / table_size) % table_size);
 
@@ -115,7 +123,7 @@ void update_entry(char const *fname, char const *lname, char const *key)
 
 unsigned int add_entry(char const *fname, char const *lname, char const *key)
 {
-    unsigned int hash_value = hash3(key) % table_size;
+    unsigned int hash_value = get_hash(key);
     unsigned int offset = hash_value % table_size;
     unsigned int step = ((hash_value / table_size) % table_size);
 
@@ -136,6 +144,23 @@ unsigned int add_entry(char const *fname, char const *lname, char const *key)
     }
 
     return NULL; // no room left
+}
+
+unsigned long get_hash(char const *key)
+{
+    if (HASH == 0) {
+        return hash(key) % table_size;
+    }
+    if (HASH == 1) {
+        return hash2(key) % table_size;
+    }
+    if (HASH == 2) {
+        return hash3(key) % table_size;
+    }
+    if (HASH == 3) {
+        return worst_hash(key) % table_size;
+    }
+    return 0;
 }
 
 size_t hash(char const *value)
@@ -170,4 +195,18 @@ unsigned int hash3(char const *value)
         h += value[i];
     }
     return h;
+}
+
+unsigned long worst_hash(char const *value)
+{ 
+    return 4; 
+}
+
+unsigned int set_hash(unsigned int hash)
+{
+    if (hash > 3) {
+        return 0;
+    }
+    HASH = hash;
+    return 1;
 }
