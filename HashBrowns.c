@@ -124,15 +124,13 @@ unsigned int add_entry(char const *fname, char const *lname, char const *key)
     for (int i = 0; i < table_size; i++) {
         struct hash_brown* entry = &hash_table[offset];
 
-        if ((!entry->in_use && strcmp(entry->key, key)) || !entry->in_use) {
+        if ((entry->in_use && strcmp(entry->key, key) == 0) || !entry->in_use) {
             entry->in_use = 1;
             strcpy(entry->fname, fname);
             strcpy(entry->lname, lname);
             strcpy(entry->key, key);
-            printf("Added or updated %i\n", offset);
             return offset;
         }
-            printf("No if match %i\n", offset);
 
         offset = (offset + step) % table_size;  // no match found yet. move on.
     }
@@ -168,15 +166,8 @@ unsigned long hash2(char const *value)
 unsigned int hash3(char const *value)
 {
     unsigned int h = 0;
-    //printf( "\n" );
     for (size_t i = 0; i < strlen(value); i++) {
         h += value[i];
-        //printf( "Hash:%i\n", h );
-        //int temp = value[i] - '0'; // just testing something out for future hash
-        //printf( ":%i\n", temp );
     }
-    //printf( "\n" );
     return h;
-
-    //int i = c[0] - '0';
 }
