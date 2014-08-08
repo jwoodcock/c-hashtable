@@ -157,7 +157,7 @@ unsigned int add_entry(char const *fname, char const *lname, char const *key)
         offset = (offset + step) % table_size;  // no match found yet. move on.
     }
 
-    return NULL; // no room left
+    return 0; // no room left
 }
 
 /**
